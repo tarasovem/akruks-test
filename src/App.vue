@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Toaster } from '@/components/ui/toast'
 import TableActions from './components/Layout/TableActions.vue'
 </script>
 
@@ -9,4 +10,5 @@ import TableActions from './components/Layout/TableActions.vue'
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <TableActions />
   </main>
+  <Toaster />
 </template>
