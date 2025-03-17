@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AddItem from './AddItem.vue'
+import CreateProductDialog from './CreateProductDialog.vue'
 </script>
 
 <template>
   <div class="flex justify-end mt-4">
-    <AddItem />
+    <CreateProductDialog />
   </div>
 </template>

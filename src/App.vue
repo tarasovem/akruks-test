@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { Toaster } from '@/components/ui/toast'
+import { useProductsStore } from '@/stores/products'
+import { onMounted } from 'vue'
+import ProductsTable from './components/Layout/ProductsTable.vue'
 import TableActions from './components/Layout/TableActions.vue'
+
+const productsStore = useProductsStore()
+
+onMounted(() => {
+  productsStore.loadProducts()
+})
 </script>
 
 <template>
@@ -9,6 +17,6 @@ import TableActions from './components/Layout/TableActions.vue'
   </header>
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <TableActions />
+    <ProductsTable />
   </main>
-  <Toaster />
 </template>

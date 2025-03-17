@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: ['./index.html', './src/**/*.{ts,js,vue}'],
+  content: ['./index.html', './src/**/*.{ts,js,vue}', './formkit.config.ts', './formkit.theme.ts'],
   theme: {
     extend: {
       borderRadius: {
