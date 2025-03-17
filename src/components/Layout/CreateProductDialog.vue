@@ -22,6 +22,14 @@ const createProduct = (formData: NewProductFormData) => {
   productsStore.addProduct(newItem)
   isOpen.value = false
 }
+
+const open = () => {
+  isOpen.value = true
+}
+
+defineExpose({
+  open,
+})
 </script>
 
 <template>

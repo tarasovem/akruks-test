@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { useProductsStore } from '@/stores/products'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import ProductsTable from './components/Layout/ProductsTable.vue'
 import TableActions from './components/Layout/TableActions.vue'
 
 const productsStore = useProductsStore()
+const tableActionsRef = ref<InstanceType<typeof TableActions> | null>(null)
+
+const handleOpenCreateDialog = () => {
+  tableActionsRef.value?.openDialog()
+}
 
 onMounted(() => {
   productsStore.loadProducts()
@@ -16,7 +21,7 @@ onMounted(() => {
     Товары на складе
   </header>
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <TableActions />
-    <ProductsTable />
+    <TableActions ref="tableActionsRef" />
+    <ProductsTable @open-create-dialog="handleOpenCreateDialog" />
   </main>
 </template>
