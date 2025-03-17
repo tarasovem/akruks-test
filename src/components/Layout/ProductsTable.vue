@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -10,39 +19,56 @@ import {
 import { useProductsStore } from '@/stores/products'
 import { Icon } from '@iconify/vue'
 import { computed, ref } from 'vue'
+import EditProductDialog from './EditProductDialog.vue'
 
 const productsStore = useProductsStore()
+const editDialogRef = ref<InstanceType<typeof EditProductDialog> | null>(null)
 
-// Тип для направления сортировки
 type SortDirection = 'asc' | 'desc' | null
-// Тип для колонки сортировки
 type SortColumn = 'id' | 'title' | 'price' | 'datetime' | null
 
 const sortColumn = ref<SortColumn>(null)
 const sortDirection = ref<SortDirection>(null)
 
-// Функция для изменения сортировки
+const isDeleteDialogOpen = ref(false)
+const productToDelete = ref<number | null>(null)
+
 const toggleSort = (column: SortColumn) => {
   if (sortColumn.value === column) {
-    // Переключаем направление если колонка та же
     if (sortDirection.value === 'asc') sortDirection.value = 'desc'
     else if (sortDirection.value === 'desc') {
       sortDirection.value = null
       sortColumn.value = null
     } else sortDirection.value = 'asc'
   } else {
-    // Новая колонка - начинаем с ascending
     sortColumn.value = column
     sortDirection.value = 'asc'
   }
 }
 
-// Функция для получения иконки сортировки
 const getSortIcon = (column: SortColumn) => {
   if (sortColumn.value === column) {
     return sortDirection.value === 'asc' ? 'lucide:chevron-up' : 'lucide:chevron-down'
   }
   return 'lucide:chevrons-up-down'
+}
+
+const confirmDelete = (id: number) => {
+  productToDelete.value = id
+  isDeleteDialogOpen.value = true
+}
+
+const removeProduct = () => {
+  if (productToDelete.value) {
+    productsStore.removeProduct(productToDelete.value)
+    isDeleteDialogOpen.value = false
+    productToDelete.value = null
+  }
+}
+
+// Функция для редактирования товара
+const editProduct = (id: number) => {
+  editDialogRef.value?.open(id)
 }
 
 // Отсортированные продукты
@@ -53,10 +79,8 @@ const sortedProducts = computed(() => {
     let aValue = a[sortColumn.value as keyof typeof a]
     let bValue = b[sortColumn.value as keyof typeof b]
 
-    // Проверка на undefined
     if (aValue === undefined || bValue === undefined) return 0
 
-    // Преобразование значений в зависимости от типа колонки
     if (sortColumn.value === 'datetime') {
       aValue = new Date(aValue as string).getTime()
       bValue = new Date(bValue as string).getTime()
@@ -125,6 +149,7 @@ const isEmpty = computed(() => productsStore.products.length === 0)
               />
             </div>
           </TableHead>
+          <TableHead class="w-[150px]">Действия</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -133,8 +158,47 @@ const isEmpty = computed(() => productsStore.products.length === 0)
           <TableCell>{{ product.title }}</TableCell>
           <TableCell>{{ product.price }}</TableCell>
           <TableCell>{{ new Date(product.datetime).toLocaleString('ru-RU') }}</TableCell>
+          <TableCell>
+            <div class="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="editProduct(product.id as number)"
+                class="flex items-center gap-1 hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <Icon icon="lucide:pencil" class="h-4 w-4" />
+                <span class="sr-only">Редактировать</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="confirmDelete(product.id as number)"
+                class="flex items-center gap-1 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+              >
+                <Icon icon="lucide:trash-2" class="h-4 w-4" />
+                <span class="sr-only">Удалить</span>
+              </Button>
+            </div>
+          </TableCell>
         </TableRow>
       </TableBody>
     </Table>
+    <EditProductDialog ref="editDialogRef" />
+
+    <!-- Диалог подтверждения удаления -->
+    <Dialog v-model:open="isDeleteDialogOpen">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Подтверждение удаления</DialogTitle>
+          <DialogDescription>
+            Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="mt-4">
+          <Button variant="outline" @click="isDeleteDialogOpen = false">Отмена</Button>
+          <Button variant="destructive" @click="removeProduct">Удалить</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

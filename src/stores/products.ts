@@ -7,7 +7,6 @@ export const useProductsStore = defineStore('products', () => {
 
   const addProduct = (product: NewProductFormData) => {
     products.value.push(product)
-    // Сохраняем в localStorage для персистентности
     localStorage.setItem('products', JSON.stringify(products.value))
   }
 
@@ -18,9 +17,31 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
+  const removeProduct = (id: number) => {
+    products.value = products.value.filter((product) => product.id !== id)
+    localStorage.setItem('products', JSON.stringify(products.value))
+  }
+
+  const updateProduct = (updatedProduct: NewProductFormData) => {
+    const index = products.value.findIndex((product) => product.id === updatedProduct.id)
+    if (index !== -1) {
+      products.value[index] = updatedProduct
+      localStorage.setItem('products', JSON.stringify(products.value))
+      return true
+    }
+    return false
+  }
+
+  const getProductById = (id: number) => {
+    return products.value.find((product) => product.id === id)
+  }
+
   return {
     products,
     addProduct,
     loadProducts,
+    removeProduct,
+    updateProduct,
+    getProductById,
   }
 })
